@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Cart</title>
+        <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+              integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+              crossorigin="anonymous" referrerpolicy="no-referrer" />
+    </head>
+    <body>
+        <section id="header">
+            <a href="#"><img src="img/logo.png" class="logo" alt></a>
+            <div>
+                <ul id="navbar">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="shop.html">Shop</a></li>
+                    <li><a href="blog.html">Blog</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="contact.html">Contact-Us</a></li>
+                    <li id="lg-bag"><a href="cart.html" class="active"><i class="fa-solid fa-bag-shopping"></i></a></li>
+                    <a href="#" id="close"><i class="fa-solid fa-xmark"></i></a>
+                </ul>
+            </div>
+        </section>
+        <section id="cart" class="section-p1">
+            <table width="100%">
+                <thead>
+                    <tr>
+                        <td>Remove</td>
+                        <td>Image</td>
+                        <td>Product</td>
+                        <td>Quantity</td>
+                        <td>Subtotal</td>
+                    </tr>
+                </thead>
+                <tbody id="cart-items">
+                    <!-- Cart items will be dynamically added here -->
+                </tbody>
+            </table>
+        </section>
+        <section id="cart-add" class="section-p1">
+            <div id="coupon">
+                <h3>Apply coupon</h3>
+                <div>
+                    <input type="text" placeholder="Enter Your coupon">
+                    <button class="normal">Apply</button>
+                </div>
+            </div>
+            <div id="subtotal">
+                <h3>Cart Totals</h3>
+                <table>
+                    <tr>
+                        <td>Cart Subtotal</td>
+                        <td id="cart-subtotal">$ 0.00</td>
+                    </tr>
+                    <tr>
+                        <td>Shopping</td>
+                        <td>free</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Total</strong></td>
+                        <td><strong id="cart-total">$ 0.00</strong></td>
+                    </tr>
+                </table>
+                <button class="normal">Proceed to Checkout</button>
+            </div>
+        </section>
+
+        <footer class="section-p1">
+            <div class="col">
+                <img class="logo" src="img/logo.png" alt>
+                <h4>Contact</h4>
+                <p><strong>Address:</strong> 562 Wellington Road, Street 32, San Francisco</p>
+                <p><strong>Phone:</strong>+01 2222 333 / (+91) 01 2345 4567</p>
+                <p><strong>Hours:</strong>10:00 - 18:00,Mon-sat</p>
+                <div class="follow">
+                    <h4>Follow Us</h4>
+                    <div class="icon">
+                        <i class="fa-brands fa-facebook-f"></i>
+                        <i class="fa-brands fa-twitter"></i>
+                        <i class="fa-brands fa-instagram"></i>
+                        <i class="fa-brands fa-pinterest-p"></i>
+                        <i class="fa-brands fa-youtube"></i>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+        <!-- <script src="script.js"></script> -->
+        <script>
+            // Load cart from localStorage and display items
+            document.addEventListener("DOMContentLoaded", () => {
+                const cartItemsContainer = document.getElementById('cart-items');
+                const cartSubtotalElement = document.getElementById('cart-subtotal');
+                const cartTotalElement = document.getElementById('cart-total');
+                
+                // Retrieve cart from localStorage
+                let cart = JSON.parse(localStorage.getItem('cart')) || [];
+                let subtotal = 0;
+
+                // Clear previous cart items
+                cartItemsContainer.innerHTML = '';
+
+                // Display each cart item
+                cart.forEach((item, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><a href="#" onclick="removeItem(${index})"><i class="fa-solid fa-circle-xmark"></i></a></td>
+                        <td><img src="${item.imgSrc}" alt=""></td>
+                        <td>${item.title}</td>
+                        <td><input type="number" value="${item.quantity}" onchange="updateQuantity(${index}, this.value)"></td>
+                        <td>$${(item.price * item.quantity).toFixed(2)}</td>
+                    `;
+                    // Add size below image
+                    const imageCell = row.querySelector('td:nth-child(2)');
+                    const sizeText = document.createElement('p');
+                    sizeText.textContent = `Size: ${item.size || 'N/A'}`; // Add size if available
+                    imageCell.appendChild(sizeText);
+
+                    cartItemsContainer.appendChild(row);
+                    subtotal += item.price * item.quantity;
+                });
+
+                // Update subtotal and total
+                cartSubtotalElement.innerText = `$${subtotal.toFixed(2)}`;
+                cartTotalElement.innerText = `$${subtotal.toFixed(2)}`;
+            });
+
+            // Remove item from cart
+            function removeItem(index) {
+                let cart = JSON.parse(localStorage.getItem('cart')) || [];
+                cart.splice(index, 1); // Remove item
+                localStorage.setItem('cart', JSON.stringify(cart)); // Save updated cart
+                location.reload(); // Reload the page to update the cart
+            }
+
+            // Update item quantity and recalculate totals
+            function updateQuantity(index, quantity) {
+                let cart = JSON.parse(localStorage.getItem('cart')) || [];
+                cart[index].quantity = parseInt(quantity);
+                localStorage.setItem('cart', JSON.stringify(cart)); // Save updated cart
+                location.reload(); // Reload the page to update the cart
+            }
+        </script>
+        <script>
+            document.querySelector('.normal').addEventListener('click', function() {
+                const size = document.querySelector('select').value;
+                const quantity = document.querySelector('input[type="number"]').value;
+                const product = {
+                    title: document.querySelector('h4').textContent,
+                    price: 139.00, // Example price, adjust as needed
+                    imgSrc: document.querySelector('#MainImg').src,
+                    size: size !== "Select Size" ? size : "N/A", // Store selected size or "N/A"
+                    quantity: parseInt(quantity)
+                };
+        
+                // Get existing cart from localStorage or initialize as an empty array
+                let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        
+                // Add new product to the cart
+                cart.push(product);
+        
+                // Save updated cart to localStorage
+                localStorage.setItem('cart', JSON.stringify(cart));
+            });
+        </script>
+        
+    </body>
+</html>
+<!-- ================================sproduct============================================================== -->
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+        <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+            integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+            crossorigin="anonymous" referrerpolicy="no-referrer" />
+    </head>
+    <body>
+        <section id="header">
+            <a href="#"><img src="img/logo.png" class="logo" alt></a>
+            <div>
+                <ul id="navbar">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a class="active" href="shop.html">Shop</a></li>
+                    <li><a href="blog.html">Blog</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="contact.html">Contact-Us</a></li>
+                    <li id="lg-bag"><a href="cart.html"><i
+                                class="fa-solid fa-bag-shopping"></i></a></li>
+                    <a href="#" id="close"><i class="fa-solid fa-xmark"></i></a>
+                </ul>
+            </div>
+            <div id="mobile">
+                <a href="cart.html"><i class="fa-solid fa-bag-shopping"></i></a>
+                <i id="bar" class="fas fa-outdent"></i>
+
+            </div>
+        </section>
+        <section id="prodetails" class="section-p1">
+            <div class="single-pro-image">
+                <img src="img/girlsp/p1.webp" width="100%" id="MainImg" alt>
+
+                <div class="small-img-group">
+                    <div class="small-img-col">
+                        <img src="img/p1/a2.webp" id="smallimg" width="100%"
+                            class="small-img" alt>
+                    </div>
+                    <div class="small-img-col">
+                        <img src="img/p1/a4.webp" width="100%"
+                            class="small-img" alt>
+                    </div>
+                    <div class="small-img-col">
+                        <img src="img/p1/a3.webp" width="100%"
+                            class="small-img" alt>
+                    </div>
+                    <div class="small-img-col">
+                        <img src="img/p1/a1.jpg" width="100%"
+                            class="small-img" alt>
+                    </div>
+                </div>
+            </div>
+            <div class="single-pro-details">
+                <h6>Home/ T-Shirts</h6>
+                <h4>WoMans Fashion Tshirt</h4>
+                <h2>$139.00</h2>
+                <select>
+                    <option>Select Size</option>
+                    <option>XL</option>
+                    <option>XXL</option>
+                    <option>Small</option>
+                    <option>Large</option>
+
+                </select>
+                <input type="number" value="1">
+                <button class="normal">Add To Cart</button>
+                <h4>Product Details</h4>
+                <span>Discover our latest collection of women’s T-shirts
+                    designed to blend comfort with effortless style. Whether you
+                    prefer classic crewnecks, relaxed fits, or trendy cropped
+                    styles, this collection has something for every mood and
+                    occasion. Made from soft, breathable fabrics, these T-shirts
+                    ensure all-day comfort while keeping your look fresh and
+                    modern. Choose from a wide range of vibrant colors, subtle
+                    tones, bold graphics, and minimal prints to match your
+                    personal style. Perfect for layering or wearing solo, these
+                    tees are a must-have addition to your everyday
+                    wardrobe.</span>
+            </div>
+        </section>
+        <!-- <section id="product1" class="section-p1">
+            <h2>Featured Products</h2>
+            <p>summer Collection New Morden Design</p>
+            <div class="pro-container">
+                <div class="pro">
+                    <img src="img/girlsp/p1.webp" alt>
+                    <div class="des">
+                        <span>adidas</span>
+                        <h5>Cartoon Astronaut T-Shirts</h5>
+                        <div class="star">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <h4>$78</h4>
+                    </div>
+                    <a href="#"><i class="fas fa-shopping-cart cart"></i></a>
+                </div>
+                <div class="pro">
+                    <img src="img/girlsp/p2.webp" alt>
+                    <div class="des">
+                        <span>adidas</span>
+                        <h5>Cartoon Astronaut T-Shirts</h5>
+                        <div class="star">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <h4>$78</h4>
+                    </div>
+                    <a href="#"><i class="fas fa-shopping-cart cart"></i></a>
+                </div> <div class="pro">
+                    <img src="img/girlsp/p3.webp" alt>
+                    <div class="des">
+                        <span>adidas</span>
+                        <h5>Cartoon Astronaut T-Shirts</h5>
+                        <div class="star">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <h4>$78</h4>
+                    </div>
+                    <a href="#"><i class="fas fa-shopping-cart cart"></i></a>
+                </div>
+                <div class="pro">
+                    <img src="img/girlsp/p4.webp" alt>
+                    <div class="des">
+                        <span>adidas</span>
+                        <h5>Cartoon Astronaut T-Shirts</h5>
+                        <div class="star">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <h4>$78</h4>
+                    </div>
+                    <a href="#"><i class="fas fa-shopping-cart cart"></i></a>
+                </div>
+                <div class="pro">
+                    <img src="img/girlsp/p5.webp" alt>
+                    <div class="des">
+                        <span>adidas</span>
+                        <h5>Cartoon Astronaut T-Shirts</h5>
+                        <div class="star">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <h4>$78</h4>
+                    </div>
+                    <a href="#"><i class="fas fa-shopping-cart cart"></i></a>
+                </div>
+                <div class="pro">
+                    <img src="img/girlsp/p6.webp" alt>
+                    <div class="des">
+                        <span>adidas</span>
+                        <h5>Cartoon Astronaut T-Shirts</h5>
+                        <div class="star">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <h4>$78</h4>
+                    </div>
+                    <a href="#"><i class="fas fa-shopping-cart cart"></i></a>
+                </div>
+                <div class="pro">
+                    <img src="img/girlsp/p7.webp" alt>
+                    <div class="des">
+                        <span>adidas</span>
+                        <h5>Cartoon Astronaut T-Shirts</h5>
+                        <div class="star">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <h4>$78</h4>
+                    </div>
+                    <a href="#"><i class="fas fa-shopping-cart cart"></i></a>
+                </div>
+                <div class="pro">
+                    <img src="img/girlsp/p8.webp" alt>
+                    <div class="des">
+                        <span>adidas</span>
+                        <h5>Cartoon Astronaut T-Shirts</h5>
+                        <div class="star">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <h4>$78</h4>
+                    </div>
+                    <a href="#"><i class="fas fa-shopping-cart cart"></i></a>
+                </div>
+            </div>
+        </section> -->
+        <section id="product1" class="section-p1">
+            <h2>Featured products</h2>
+            <p>summer Collection New Morden Design</p>
+            <div class="pro-container">
+                <div class="pro">
+                    <img src="img/girlsp/n9.jpg" alt>
+                    <div class="des">
+                        <span>adidas</span>
+                        <h5>Cartoon Astronaut T-Shirts</h5>
+                        <div class="star">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <h4>$78</h4>
+                    </div>
+                    <a href="#"><i class="fas fa-shopping-cart cart"></i></a>
+                </div>
+                <div class="pro">
+                    <img src="img/girlsp/n2" alt>
+                    <div class="des">
+                        <span>adidas</span>
+                        <h5>Cartoon Astronaut T-Shirts</h5>
+                        <div class="star">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <h4>$78</h4>
+                    </div>
+                    <a href="#"><i class="fas fa-shopping-cart cart"></i></a>
+                </div> <div class="pro">
+                    <img src="img/girlsp/n1.jpg" alt>
+                    <div class="des">
+                        <span>adidas</span>
+                        <h5>Cartoon Astronaut T-Shirts</h5>
+                        <div class="star">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <h4>$78</h4>
+                    </div>
+                    <a href="#"><i class="fas fa-shopping-cart cart"></i></a>
+                </div>
+                <div class="pro">
+                    <img src="img/girlsp/n4.jpg" alt>
+                    <div class="des">
+                        <span>adidas</span>
+                        <h5>Cartoon Astronaut T-Shirts</h5>
+                        <div class="star">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <h4>$78</h4>
+                    </div>
+                    <a href="#"><i class="fas fa-shopping-cart cart"></i></a>
+                </div>
+
+            </div>
+        </section>
+
+        <section id="newsletter" class="section-p1 section-m1">
+            <div class="newstext">
+                <h4>Sign Up For newsletters</h4>
+                <p>get E-mail updates about our latest shop and <span>special
+                        offers</span></p>
+            </div>
+            <div class="form">
+                <input type="text" placeholder="Your Email address">
+                <button class="normal">Sign Up</button>
+            </div>
+        </section>
+        <footer class="section-p1">
+            <div class="col">
+                <img class="logo" src="img/logo.png" alt>
+                <h4>Contact</h4>
+                <p><strong>Address:</strong> 562 Wellington Road, Street 32, San
+                    Francisco</p>
+                <p><strong>Phone:</strong>+01 2222 333 / (+91) 01 2345 4567</p>
+                <p><strong>Hours:</strong>10:00 - 18:00,Mon-sat</p>
+                <div class="follow">
+                    <h4>Follow Us</h4>
+                    <div class="icon">
+                        <i class="fa-brands fa-facebook-f"></i>
+                        <i class="fa-brands fa-twitter"></i>
+                        <i class="fa-brands fa-instagram"></i>
+                        <i class="fa-brands fa-pinterest-p"></i>
+                        <i class="fa-brands fa-youtube"></i>
+                    </div>
+                    <!-- <div class="copyright">
+                        <p>&#169 2021 tech etc-html css javascript templets</p>
+                    </div> -->
+                </div>
+            </div>
+            <div class="col">
+                <h4>About</h4>
+                <a href="#">About us</a>
+                <a href="#">Delivery Information</a>
+                <a href="#">Privacy Policy</a>
+                <a href="#">Teems & Conditions</a>
+                <a href="#">Contact us</a>
+            </div>
+
+            <div class="col">
+                <h4>My Account</h4>
+                <a href="#">Sign in</a>
+                <a href="#">View Cart</a>
+                <a href="#">My Wishilist</a>
+                <a href="#">Track My order</a>
+                <a href="#">Help</a>
+            </div>
+
+            <div class="col install">
+                <h4>Instaall App</h4>
+                <p>From App Store or Google Play</p>
+                <div class="row">
+                    <img src="img/pay/app.jpg" alt>
+                    <img src="img/pay/play.jpg" alt>
+                </div>
+                <p>Secured Payment getWays</p>
+                <img src="img/pay/pay.png" alt>
+            </div>
+            <div class="copyright">
+                <p>&#169 2021 tech etc-html css javascript templets</p>
+            </div>
+        </footer>
+        <script>
+            var MainImg = document.getElementById("MainImg");
+            var smallimg = document.getElementsByClassName("small-img");
+            smallimg[0].onclick = function(){
+                MainImg.src = smallimg[0].src;
+            }
+            smallimg[1].onclick = function(){
+                MainImg.src = smallimg[1].src;
+            }
+            smallimg[2].onclick = function(){
+                MainImg.src = smallimg[2].src;
+            }
+            smallimg[3].onclick = function(){
+                MainImg.src = smallimg[3].src;
+            }
+        </script>
+        <script src="script.js"></script>
+    </body>
+</html>
+<!-- ---------------------------------------------cart-======================================------- -->
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+        <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+            integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+            crossorigin="anonymous" referrerpolicy="no-referrer" />
+    </head>
+    <body>
+        <section id="header">
+            <a href="#"><img src="img/logo.png" class="logo" alt></a>
+            <div>
+                <ul id="navbar">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="shop.html">Shop</a></li>
+                    <li><a href="blog.html">Blog</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a
+                            href="contact.html">Contact-Us</a></li>
+                    <li id="lg-bag"><a href="cart.html" class="active"><i
+                                class="fa-solid fa-bag-shopping"></i></a></li>
+                    <a href="#" id="close"><i class="fa-solid fa-xmark"></i></a>
+                </ul>
+            </div>
+            <div id="mobile">
+                <a href="cart.html"><i class="fa-solid fa-bag-shopping"></i></a>
+                <i id="bar" class="fas fa-outdent"></i>
+ 
+            </div>
+        </section>
+        <section id="page-header" class="about-header">
+ 
+            <h2>#Let's_talk</h2>
+ 
+            <p>LEAVE A MESSAGE, WE LOVE TO HERE FROM YOU!</p>
+ 
+        </section>
+<section id="cart" class="section-p1">
+    <table width="100%">
+        <thead>
+            <tr>
+                <td>Rmove</td>
+                <td>Image</td>
+                <td>Product</td>
+                <td>Quantity</td>
+                <td>Subtotal</td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><a href="#"></a><i class="fa-solid fa-circle-xmark"></i></a></td>
+                <td><img src="img/products/f1.jpg" alt=""></td>
+                <td>Cartton Astront t-shirts</td>
+                <td>$118.19</td>
+                <td><input type="number" value="1"></td>
+                <td>$118.19</td>
+ 
+            </tr>
+            <tr>
+                <td><a href="#"></a><i class="fa-solid fa-circle-xmark"></i></a></td>
+                <td><img src="img/products/f2.jpg" alt=""></td>
+                <td>Cartton Astront t-shirts</td>
+                <td>$118.19</td>
+                <td><input type="number" value="1"></td>
+                <td>$118.19</td>
+ 
+            </tr>
+            <tr>
+                <td><a href="#"></a><i class="fa-solid fa-circle-xmark"></i></a></td>
+                <td><img src="img/products/f3.jpg" alt=""></td>
+                <td>Cartton Astront t-shirts</td>
+                <td>$118.19</td>
+                <td><input type="number" value="1"></td>
+                <td>$118.19</td>
+ 
+            </tr>
+        </tbody>
+    </table>
+</section>
+<section id="cart-add" class="section-p1">
+    <div id="coupon">
+        <h3>Apply coupon</h3>
+        <div>
+            <input type="text" placeholder="Enter Your coupon">
+            <button class="normal">Apply</button>
+        </div>
+    </div>
+    <div id="subtotal">
+        <h3>Cart Totals</h3>
+        <table>
+            <tr>
+                <td>Cart Subtotal</td>
+                <td>$ 334</td>
+            </tr>
+            <tr>
+                <td>Shopping</td>
+                <td>free</td>
+            </tr>
+            <tr>
+                <td><strong>Total</strong></td>
+                <td><strong>$ 334</strong></td>
+               
+            </tr>
+        </table>
+        <button class="normal">Proceed to Checkout</button>
+    </div>
+</section>
+        <footer class="section-p1">
+            <div class="col">
+                <img class="logo" src="img/logo.png" alt>
+                <h4>Contact</h4>
+                <p><strong>Address:</strong> 562 Wellington Road, Street 32, San
+                    Francisco</p>
+                <p><strong>Phone:</strong>+01 2222 333 / (+91) 01 2345 4567</p>
+                <p><strong>Hours:</strong>10:00 - 18:00,Mon-sat</p>
+                <div class="follow">
+                    <h4>Follow Us</h4>
+                    <div class="icon">
+                        <i class="fa-brands fa-facebook-f"></i>
+                        <i class="fa-brands fa-twitter"></i>
+                        <i class="fa-brands fa-instagram"></i>
+                        <i class="fa-brands fa-pinterest-p"></i>
+                        <i class="fa-brands fa-youtube"></i>
+                    </div>
+                    <!-- <div class="copyright">
+                        <p>&#169 2021 tech etc-html css javascript templets</p>
+                    </div> -->
+                </div>
+            </div>
+            <div class="col">
+                <h4>About</h4>
+                <a href="#">About us</a>
+                <a href="#">Delivery Information</a>
+                <a href="#">Privacy Policy</a>
+                <a href="#">Teems & Conditions</a>
+                <a href="#">Contact us</a>
+            </div>
+ 
+            <div class="col">
+                <h4>My Account</h4>
+                <a href="#">Sign in</a>
+                <a href="#">View Cart</a>
+                <a href="#">My Wishilist</a>
+                <a href="#">Track My order</a>
+                <a href="#">Help</a>
+            </div>
+ 
+            <div class="col install">
+                <h4>Instaall App</h4>
+                <p>From App Store or Google Play</p>
+                <div class="row">
+                    <img src="img/pay/app.jpg" alt>
+                    <img src="img/pay/play.jpg" alt>
+                </div>
+                <p>Secured Payment getWays</p>
+                <img src="img/pay/pay.png" alt>
+            </div>
+            <div class="copyright">
+                <p>&#169 2021 tech etc-html css javascript templets</p>
+            </div>
+        </footer>
+        <script src="script.js"></script>
+    </body>
+</html>
+<!-- ============================script======================================================= -->
+ const bar = document.getElementById("bar");
+const close = document.getElementById("close");
+const nav = document.getElementById("navbar");
+
+if (bar) {
+  bar.addEventListener("click", () => {
+    nav.classList.add("active");
+  });
+}
+if (close) {
+  close.addEventListener("click", () => {
+    nav.classList.remove("active");
+  });
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  // Select the "Add to Cart" button
+  const addToCartBtn = document.getElementById("addToCartBtn");
+
+  // Get the product details
+  const productName = document.querySelector(
+    ".single-pro-details h4"
+  ).innerText;
+  const productPrice = document
+    .querySelector(".single-pro-details h2")
+    .innerText.replace("$", "");
+  const productImage = document.getElementById("MainImg").src;
+
+  // Get size and quantity inputs
+  const sizeSelect = document.querySelector("select");
+  const quantityInput = document.getElementById("quantity");
+
+  // Add event listener to "Add to Cart" button
+  addToCartBtn.addEventListener("click", function () {
+    // Get selected size and quantity
+    const selectedSize = sizeSelect.value;
+    const quantity = parseInt(quantityInput.value);
+
+    // Ensure size and quantity are selected properly
+    if (selectedSize === "Select Size" || isNaN(quantity) || quantity <= 0) {
+      alert("Please select a valid size and quantity.");
+      return;
+    }
+
+    // Create a product object to store in the cart
+    const cartItem = {
+      name: productName,
+      price: productPrice,
+      image: productImage,
+      size: selectedSize,
+      quantity: quantity,
+    };
+
+    // Get the cart from localStorage (if it exists)
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+    // Add the new item to the cart
+    cart.push(cartItem);
+
+    // Save the updated cart back to localStorage
+    localStorage.setItem("cart", JSON.stringify(cart));
+
+    // Optionally alert the user
+    alert("Product added to cart!");
+  });
+});
+// Retrieve elements from the page
+const addToCartBtn = document.querySelector(".normal"); // Button to add item to cart
+const productTitle = document.querySelector(".single-pro-details h4"); // Product title
+const productPrice = document.querySelector(".single-pro-details h2"); // Product price
+const productImg = document.getElementById("MainImg"); // Main product image
+const quantityInput = document.querySelector('input[type="number"]'); // Quantity input field
+
+// Cart functionality
+addToCartBtn.addEventListener("click", () => {
+  // Get selected product details
+  const product = {
+    title: productTitle.innerText, // Title of the product
+    price: parseFloat(productPrice.innerText.replace("$", "")), // Price of the product
+    imgSrc: productImg.src, // Image source
+    quantity: parseInt(quantityInput.value), // Quantity selected
+  };
+
+  // Check if there is an existing cart in localStorage
+  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+  // Check if the product is already in the cart
+  const productIndex = cart.findIndex((item) => item.title === product.title);
+  if (productIndex > -1) {
+    // If the product is already in the cart, update the quantity
+    cart[productIndex].quantity += product.quantity;
+  } else {
+    // If the product is not in the cart, add it
+    cart.push(product);
+  }
+
+  // Save updated cart to localStorage
+  localStorage.setItem("cart", JSON.stringify(cart));
+
+  // Optionally, alert the user that the product has been added
+  alert(`${product.title} has been added to your cart!`);
+});
+// Assuming you have a select input for size on the product page
+const size = document.getElementById("size").value; // Get selected size
+
+// Add item to cart
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+cart.push({
+  imgSrc: "path/to/image.jpg", // Image URL
+  title: "Product Name",
+  price: 100,
+  quantity: 1,
+  size: size, // Store size here
+});
+localStorage.setItem("cart", JSON.stringify(cart)); // Save updated cart
+
+
